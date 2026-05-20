@@ -96,8 +96,13 @@ app.use((err, req, res, next) => {
 // Initialize Scheduled Tasks
 require('./services/scheduler');
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+// Start server if run directly (local development/VPS)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
+
+// Export for serverless environments (Vercel)
+module.exports = app;
