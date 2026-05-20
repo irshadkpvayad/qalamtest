@@ -3,25 +3,41 @@ const express = require('express');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
 const flash = require('connect-flash');
 const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
 const morgan = require('morgan');
-const { Pool } = require('pg');
 
 // Initialize Express app
 const app = express();
 
-// Database Pool for session store
-const dbPool = new Pool({
-  connectionString: process.env.SUPABASE_DB_URL,
-});
+// Session store: use pg-backed store only when SUPABASE_DB_URL is set and we're
+// NOT in a serverless environment (Vercel workers die between requests, so
+// pg-connect-simple causes crash-on-cold-start if the DB pool can't connect).
+let sessionStore;
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+if (!isServerless && process.env.SUPABASE_DB_URL) {
+  try {
+    const { Pool } = require('pg');
+    const pgSession = require('connect-pg-simple')(session);
+    const dbPool = new Pool({ connectionString: process.env.SUPABASE_DB_URL });
+    dbPool.on('error', (err) => console.error('Unexpected DB pool error', err));
+    sessionStore = new pgSession({ pool: dbPool, tableName: 'session' });
+    console.log('Using PostgreSQL session store.');
+  } catch (e) {
+    console.warn('Failed to init pg session store, falling back to memory store:', e.message);
+  }
+}
+
+if (!sessionStore) {
+  console.log('Using in-memory session store (sessions will not persist across restarts).');
+}
 
 // Security & Optimization Middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Disabled for simplicity, enable in production with proper config for CDNs
+  contentSecurityPolicy: false,
 }));
 app.use(cors());
 app.use(compression());
@@ -36,11 +52,8 @@ app.use(express.json());
 
 // Session setup
 app.use(session({
-  store: new pgSession({
-    pool: dbPool,
-    tableName: 'session' // Use connect-pg-simple default table 'session'
-  }),
-  secret: process.env.SESSION_SECRET || 'secret',
+  store: sessionStore, // undefined = default MemoryStore (fine for serverless)
+  secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -69,11 +82,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('layout', 'layouts/main');
 
-// Ensure database pool handles errors
-dbPool.on('error', (err, client) => {
-  console.error('Unexpected error on idle client', err);
-});
-
 // Import Routes
 const publicRoutes = require('./routes/public');
 const adminRoutes = require('./routes/admin');
@@ -93,10 +101,12 @@ app.use((err, req, res, next) => {
   res.status(500).render('500', { title: '500 - സെർവർ പിശക്', layout: 'layouts/main' });
 });
 
-// Initialize Scheduled Tasks
-require('./services/scheduler');
+// Initialize Scheduled Tasks only in persistent (non-serverless) environments
+if (!isServerless) {
+  require('./services/scheduler');
+}
 
-// Start server if run directly (local development/VPS)
+// Start server if run directly (local development / VPS)
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
