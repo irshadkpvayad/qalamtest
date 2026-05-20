@@ -1,0 +1,22 @@
+<div class="glass glass-panel text-center fade-in" style="margin-bottom:3rem; padding:4rem 2rem;">
+  <span style="color:var(--accent); font-size:1.5rem;"><i class="fas fa-hashtag"></i></span>
+  <h1 style="font-size:2.5rem; margin-bottom:1rem; display:inline-block; margin-left:0.5rem;"><%= tag.name %></h1>
+</div>
+
+<div class="grid-layout">
+  <div>
+    <% if (posts.length === 0) { %>
+      <div class="glass glass-panel text-center fade-in stagger-1">
+        <p>ഈ ടാഗിൽ പോസ്റ്റുകളൊന്നും കണ്ടെത്തിയില്ല.</p>
+      </div>
+    <% } else { %>
+      <div class="post-grid fade-in stagger-1">
+        <% posts.forEach((post) => { %>
+          <%- include('partials/post-card', { post }) %>
+        <% }) %>
+      </div>
+
+      <%- include('partials/pagination', { currentPage, totalPages }) %>
+    <% } %>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+  <h2 style="font-family:'Playfair Display', serif; margin:0;">Media Library</h2>
+</div>
+
+<div class="glass glass-panel" style="margin-bottom:2rem;">
+  <h4 style="margin-bottom:1rem;">Upload Image</h4>
+  <form action="/admin/media/upload" method="POST" enctype="multipart/form-data" style="display:flex; gap:1rem; align-items:center; max-width:600px;">
+    <input type="file" name="image" class="form-control" accept="image/*" required>
+    <button type="submit" class="btn">Upload</button>
+  </form>
+</div>
+
+<div class="media-grid">
+  <% media.forEach(m => { %>
+    <div class="media-item">
+      <img src="<%= m.thumbnail_url %>" alt="<%= m.filename %>" loading="lazy">
+      <div class="media-actions">
+        <button class="btn btn-secondary copy-url-btn" data-url="<%= m.url %>" title="Copy URL" style="padding:0.3rem 0.5rem; font-size:0.8rem; background:rgba(255,255,255,0.2);"><i class="fas fa-link"></i></button>
+        <form action="/admin/media/delete/<%= m.id %>" method="POST" style="margin:0;" onsubmit="return confirm('Delete image from library?')">
+          <button type="submit" class="btn btn-secondary" title="Delete" style="padding:0.3rem 0.5rem; font-size:0.8rem; color:var(--error); background:rgba(255,255,255,0.2);"><i class="fas fa-trash"></i></button>
+        </form>
+      </div>
+    </div>
+  <% }) %>
+  <% if(media.length === 0) { %>
+    <p style="grid-column: 1 / -1; text-align:center; padding:2rem; color:var(--text-secondary);">No media uploaded yet.</p>
+  <% } %>
+</div>

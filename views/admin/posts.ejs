@@ -1,0 +1,41 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+  <h2 style="font-family:'Playfair Display', serif; margin:0;">Posts</h2>
+  <a href="/admin/posts/new" class="btn"><i class="fas fa-plus"></i> New Post</a>
+</div>
+
+<div class="bento-card admin-table-container fade-in stagger-1" style="padding:0;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Views</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% posts.forEach(post => { %>
+        <tr>
+          <td><a href="/post/<%= post.slug %>?preview=true" target="_blank" style="color:var(--text-primary); font-weight:600;"><%= post.title %></a></td>
+          <td>
+            <span class="badge badge-<%= post.status %>"><%= post.status.toUpperCase() %></span>
+          </td>
+          <td><%= post.views %></td>
+          <td><%= new Date(post.created_at).toLocaleDateString('en-IN') %></td>
+          <td>
+            <a href="/admin/posts/edit/<%= post.id %>" class="btn btn-secondary" style="padding:0.4rem 0.6rem;" title="Edit"><i class="fas fa-edit"></i></a> 
+            <button type="button" class="btn btn-secondary delete-post-btn" data-id="<%= post.id %>" style="padding:0.4rem 0.6rem; color:var(--error); min-width: 40px;" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      <% }) %>
+      <% if(posts.length === 0) { %>
+        <tr>
+          <td colspan="5" class="text-center">No posts found.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,49 @@
+<h2 style="margin-bottom:2rem; font-family:'Playfair Display', serif;">Settings</h2>
+
+<form action="/admin/settings" method="POST">
+  <div class="grid-layout">
+    <div class="glass glass-panel">
+      <h3 style="margin-bottom:1.5rem;">General Settings</h3>
+      <div class="form-group">
+        <label>Blog Name (English)</label>
+        <input type="text" name="blog_name_en" class="form-control" value="<%= settings.blog_name_en || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Blog Name (Malayalam)</label>
+        <input type="text" name="blog_name_ml" class="form-control" value="<%= settings.blog_name_ml || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Tagline</label>
+        <input type="text" name="tagline" class="form-control" value="<%= settings.tagline || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Footer Text</label>
+        <input type="text" name="footer_text" class="form-control" value="<%= settings.footer_text || '' %>">
+      </div>
+      <div class="form-group">
+        <label>Accent Color</label>
+        <input type="color" name="accent_color" class="form-control" value="<%= settings.accent_color || '#f5a623' %>" style="padding:0; height:40px;">
+      </div>
+    </div>
+
+    <div class="glass glass-panel">
+      <h3 style="margin-bottom:1.5rem;">System & Maintenance</h3>
+      <div class="form-group">
+        <label>Posts Per Page</label>
+        <input type="number" name="posts_per_page" class="form-control" value="<%= settings.posts_per_page || '10' %>">
+      </div>
+      <div class="form-group">
+        <label>Maintenance Mode</label>
+        <select name="maintenance_mode" class="form-control">
+          <option value="false" <%= settings.maintenance_mode === 'false' ? 'selected' : '' %>>Off</option>
+          <option value="true" <%= settings.maintenance_mode === 'true' ? 'selected' : '' %>>On</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Maintenance Message</label>
+        <textarea name="maintenance_message" class="form-control" rows="3"><%= settings.maintenance_message || '' %></textarea>
+      </div>
+      <button type="submit" class="btn" style="width:100%; margin-top:1rem;">Save All Settings</button>
+    </div>
+  </div>
+</form>

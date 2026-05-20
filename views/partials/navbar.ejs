@@ -1,0 +1,70 @@
+<nav class="navbar">
+  <div class="container nav-container" style="position:relative;">
+    <a href="/" class="nav-logo">
+      <i class="fas fa-feather-alt" style="color: #101828;"></i>
+      <span style="font-family:'Playfair Display', serif; font-weight:700; color: #101828;">QALAM THIRASH</span>
+    </a>
+    
+    <button class="mobile-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
+      <i class="fas fa-bars"></i>
+    </button>
+    
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/archive">Blog</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+
+    <div class="nav-actions" id="navActions">
+      <form action="/search" method="GET" style="display:flex; gap:0.5rem; margin-right: 0.5rem;">
+        <input type="text" name="q" placeholder="Search..." class="form-control" style="width:140px; padding:0.4rem 0.8rem; height: 38px; font-size: 0.85rem; border-radius: 8px;">
+        <button type="submit" class="btn" style="padding: 0.4rem 0.8rem; height:38px; border-radius: 8px;"><i class="fas fa-search"></i></button>
+      </form>
+      
+      <% if (user) { %>
+        <a href="<%= user.role === 'admin' ? '/admin/dashboard' : '/profile' %>" class="btn btn-secondary" style="border:none; height:38px; font-size:0.9rem; padding: 0 0.75rem;"><i class="fas fa-user-circle"></i> <%= user.name %></a>
+        <a href="/logout" class="btn" style="height:38px; padding: 0 1rem; font-size:0.9rem; border-radius: 8px;">Logout</a>
+      <% } else { %>
+        <a href="/login" style="color:var(--text-secondary); font-weight:600; margin-right:1rem; font-size:0.95rem;">Log In</a>
+        <a href="/signup" class="btn" style="height:38px; padding: 0 1.25rem; font-size:0.9rem; border-radius: 8px;">Sign Up</a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<script>
+  (function() {
+    var btn = document.getElementById('mobileMenuBtn');
+    var links = document.getElementById('navLinks');
+    var actions = document.getElementById('navActions');
+    var isOpen = false;
+
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        isOpen = !isOpen;
+        var icon = btn.querySelector('i');
+
+        if (isOpen) {
+          links.style.display = 'flex';
+          actions.style.display = 'flex';
+          icon.className = 'fas fa-times';
+        } else {
+          links.style.display = '';
+          actions.style.display = '';
+          icon.className = 'fas fa-bars';
+        }
+      });
+
+      document.addEventListener('click', function() {
+        if (isOpen) {
+          isOpen = false;
+          links.style.display = '';
+          actions.style.display = '';
+          btn.querySelector('i').className = 'fas fa-bars';
+        }
+      });
+    }
+  })();
+</script>

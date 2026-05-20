@@ -1,0 +1,54 @@
+<h2 style="margin-bottom:2rem; font-family:'Playfair Display', serif;">Comments Moderation</h2>
+
+<div class="glass glass-panel admin-table-container">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Author</th>
+        <th>Comment</th>
+        <th>On Post</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% comments.forEach(c => { %>
+        <tr>
+          <td>
+            <strong><%= c.name %></strong><br>
+            <a href="mailto:<%= c.email %>" style="font-size:0.85rem;"><%= c.email %></a>
+          </td>
+          <td style="max-width:300px;">
+            <p style="margin:0; font-size:0.95rem;"><%= c.content %></p>
+          </td>
+          <td><%= c.posts ? c.posts.title : 'Deleted Post' %></td>
+          <td><%= new Date(c.created_at).toLocaleDateString() %></td>
+          <td><span class="badge badge-<%= c.status === 'approved' ? 'published' : (c.status === 'spam' ? 'draft' : 'pending') %>"><%= c.status.toUpperCase() %></span></td>
+          <td style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <% if(c.status !== 'approved') { %>
+              <form action="/admin/comments/update/<%= c.id %>" method="POST">
+                <input type="hidden" name="status" value="approved">
+                <button type="submit" class="btn btn-secondary" style="padding:0.3rem 0.5rem; color:var(--success);" title="Approve"><i class="fas fa-check"></i></button>
+              </form>
+            <% } %>
+            <% if(c.status !== 'spam') { %>
+              <form action="/admin/comments/update/<%= c.id %>" method="POST">
+                <input type="hidden" name="status" value="spam">
+                <button type="submit" class="btn btn-secondary" style="padding:0.3rem 0.5rem; color:var(--accent);" title="Mark Spam"><i class="fas fa-ban"></i></button>
+              </form>
+            <% } %>
+            <form action="/admin/comments/delete/<%= c.id %>" method="POST" onsubmit="return confirm('Delete comment completely?')">
+              <button type="submit" class="btn btn-secondary" style="padding:0.3rem 0.5rem; color:var(--error);" title="Delete"><i class="fas fa-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+      <% if(comments.length === 0) { %>
+        <tr>
+          <td colspan="6" class="text-center">No comments found.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>

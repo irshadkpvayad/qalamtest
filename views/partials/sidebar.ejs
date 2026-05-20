@@ -1,0 +1,37 @@
+<aside class="sidebar" style="display:flex; flex-direction:column; gap:2rem;">
+  
+  <% if (typeof popularPosts !== 'undefined' && popularPosts.length > 0) { %>
+  <div class="glass glass-panel">
+    <h4>Trending Posts</h4>
+    <ul style="list-style:none; margin-top:1rem; display:flex; flex-direction:column; gap:1rem;">
+      <% popularPosts.forEach(post => { %>
+        <li style="display:flex; gap:1rem; align-items:center;">
+          <% if(post.featured_image) { %>
+            <img src="<%= post.featured_image %>" alt="<%= post.title %>" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+          <% } %>
+          <div>
+            <a href="/post/<%= post.slug %>" style="font-size:0.95rem; font-weight:700; line-height:1.4; display:block;"><%= post.title %></a>
+            <span style="font-size:0.75rem; color:var(--text-secondary);"><i class="fas fa-eye"></i> <%= post.views %></span>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+  <% } %>
+
+  <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+  <div class="glass glass-panel">
+    <h4>Categories</h4>
+    <ul style="list-style:none; margin-top:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+      <% categories.forEach(cat => { %>
+        <li>
+          <a href="/category/<%= cat.slug %>" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem; border-radius:4px; transition:background 0.3s;">
+            <span><%= cat.name %></span>
+          </a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+  <% } %>
+
+</aside>

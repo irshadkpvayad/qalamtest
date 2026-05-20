@@ -1,0 +1,141 @@
+<h2 style="margin-bottom:2rem; font-family:'Playfair Display', serif;">Categories</h2>
+
+<div class="grid-layout fade-in">
+  <div>
+    <div class="bento-card stagger-1">
+      <h3 style="margin-top:0; margin-bottom:1.5rem;">Add New Category</h3>
+      <form action="/admin/categories/new" method="POST">
+        <div class="form-group">
+          <label>Name (Malayalam/English)</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Custom Slug (Optional)</label>
+          <input type="text" name="slug" class="form-control" placeholder="Leave empty to auto-generate">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Accent Color</label>
+          <input type="color" name="accent_color" class="form-control" value="#f5a623" style="padding:0; height:40px;">
+        </div>
+        <div class="form-group">
+          <label>Parent Category (Optional)</label>
+          <select name="parent_id" class="form-control">
+            <option value="">None (Main Category)</option>
+            <% categories.filter(c => !c.parent_id).forEach(parent => { %>
+              <option value="<%= parent.id %>"><%= parent.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex; flex-direction:column; gap:0.75rem;">
+          <label>Cover Image URL (Optional)</label>
+          <input type="text" name="cover_image" id="cover_image" class="form-control">
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <label class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem; margin:0; cursor:pointer; border-radius:8px; width:fit-content;">
+              <i class="fas fa-upload" style="color:var(--admin-primary);"></i> Upload Image File
+              <input type="file" id="file_cover_image" style="display:none;" accept="image/*">
+            </label>
+            <span id="upload_status" style="font-size:0.8rem; color:var(--admin-text-light);"></span>
+          </div>
+          <img id="img_preview" alt="Preview" style="width:100%; border-radius:8px; margin-top:0.5rem; display:none; border:1px solid var(--admin-border); object-fit:cover; max-height:120px;">
+        </div>
+        <button type="submit" class="btn" style="width:100%;">Save Category</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('file_cover_image');
+    const textInput = document.getElementById('cover_image');
+    const previewImg = document.getElementById('img_preview');
+    const statusSpan = document.getElementById('upload_status');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const res = await fetch('/admin/media/upload', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+          const data = await res.json();
+          
+          if (data.success) {
+            textInput.value = data.url;
+            previewImg.src = data.url;
+            previewImg.style.display = 'block';
+            statusSpan.innerHTML = '<span style="color:var(--admin-success); font-weight:600;"><i class="fas fa-check"></i> Uploaded!</span>';
+          } else {
+            statusSpan.innerHTML = `<span style="color:var(--admin-danger);">Error: ${data.error || 'Upload failed'}</span>`;
+          }
+        } catch (err) {
+          console.error(err);
+          statusSpan.innerHTML = '<span style="color:var(--admin-danger);">Upload failed.</span>';
+        }
+      });
+    }
+  });
+  </script>
+
+  <div>
+    <div class="bento-card admin-table-container stagger-2" style="padding:0;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Parent</th>
+            <th>Slug</th>
+            <th>Color</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categories.forEach(c => { 
+               const parent = c.parent_id ? categories.find(p => p.id === c.parent_id) : null;
+          %>
+            <tr>
+              <td>
+                <% if(c.parent_id) { %>
+                  <span style="color:var(--admin-text-light); font-weight:normal;">&mdash;</span> 
+                <% } %>
+                <%= c.name %>
+              </td>
+              <td><%= parent ? parent.name : 'Main' %></td>
+              <td><%= c.slug %></td>
+              <td>
+                <% if(c.accent_color) { %>
+                  <div style="width:20px; height:20px; background:<%= c.accent_color %>; border-radius:50%; border:1px solid #fff;"></div>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td>
+                <form action="/admin/categories/delete/<%= c.id %>" method="POST" style="display:inline;" onsubmit="return confirm('Delete category?')">
+                  <button type="submit" class="btn btn-secondary" style="padding:0.4rem 0.6rem; color:var(--error);" title="Delete"><i class="fas fa-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+          <% if(categories.length === 0) { %>
+            <tr>
+              <td colspan="5" class="text-center">No categories found.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+<% if (totalPages > 1) { %>
+<div class="pagination" style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #eaecf0; padding-top: 1.5rem; margin-top: 4rem;">
+  
+  <div>
+    <% if (currentPage > 1) { %>
+      <% 
+         const queryParams = new URLSearchParams(typeof query !== 'undefined' ? { q: query } : {});
+         queryParams.set('page', currentPage - 1);
+      %>
+      <a href="?<%= queryParams.toString() %>" class="btn btn-secondary" style="border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem;"><i class="fas fa-arrow-left" style="margin-right:0.5rem;"></i> Previous</a>
+    <% } else { %>
+      <span class="btn btn-secondary" style="border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem; opacity: 0.5; cursor: not-allowed;"><i class="fas fa-arrow-left" style="margin-right:0.5rem;"></i> Previous</span>
+    <% } %>
+  </div>
+  
+  <div style="font-weight: 600; color: #475467; font-size: 0.95rem;">
+    Page <%= currentPage %> of <%= totalPages %>
+  </div>
+
+  <div>
+    <% if (currentPage < totalPages) { %>
+      <% 
+         const queryParams = new URLSearchParams(typeof query !== 'undefined' ? { q: query } : {});
+         queryParams.set('page', currentPage + 1);
+      %>
+      <a href="?<%= queryParams.toString() %>" class="btn btn-secondary" style="border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem;">Next <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i></a>
+    <% } else { %>
+      <span class="btn btn-secondary" style="border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem; opacity: 0.5; cursor: not-allowed;">Next <i class="fas fa-arrow-right" style="margin-left:0.5rem;"></i></span>
+    <% } %>
+  </div>
+</div>
+<% } %>

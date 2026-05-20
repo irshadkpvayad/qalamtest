@@ -1,0 +1,31 @@
+<div class="container fade-in">
+  <div class="auth-card panel">
+    <h2 class="text-center mb-4">Create an Account</h2>
+    
+    <% if (error_msg && error_msg.length > 0) { %>
+      <div class="alert alert-danger" style="color: var(--error); background: #fef2f2; border: 1px solid var(--error); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+        <%= error_msg %>
+      </div>
+    <% } %>
+
+    <form action="/signup" method="POST">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" class="form-control" required placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" class="form-control" required placeholder="Choose a strong password (min 6 chars)">
+      </div>
+      <div class="form-group">
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" name="confirm_password" id="confirm_password" class="form-control" required placeholder="Repeat your password">
+      </div>
+      <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Sign Up</button>
+    </form>
+    
+    <div class="text-center" style="margin-top: 2rem;">
+      <p style="color: var(--text-secondary);">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="glass glass-panel text-center fade-in" style="margin-bottom:3rem; padding:4rem 2rem;">
+  <% if(category.cover_image) { %>
+    <!-- Background overlay if cover image exists -->
+    <div style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:-1; border-radius:16px; overflow:hidden;">
+      <img src="<%= category.cover_image %>" style="width:100%; height:100%; object-fit:cover; opacity:0.3; filter:blur(4px);">
+    </div>
+  <% } %>
+  <h1 style="font-size:2.5rem; margin-bottom:1rem;"><%= category.name %></h1>
+  <% if(category.description) { %>
+    <p style="color:var(--text-secondary); max-width:600px; margin:0 auto;"><%= category.description %></p>
+  <% } %>
+</div>
+
+<div class="grid-layout">
+  <div>
+    <% if (posts.length === 0) { %>
+      <div class="glass glass-panel text-center fade-in stagger-1">
+        <p>ഈ വിഭാഗത്തിൽ പോസ്റ്റുകളൊന്നും കണ്ടെത്തിയില്ല.</p>
+      </div>
+    <% } else { %>
+      <div class="post-grid fade-in stagger-1">
+        <% posts.forEach((post) => { %>
+          <%- include('partials/post-card', { post }) %>
+        <% }) %>
+      </div>
+
+      <%- include('partials/pagination', { currentPage, totalPages }) %>
+    <% } %>
+  </div>
+</div>

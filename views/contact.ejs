@@ -1,0 +1,19 @@
+<div class="glass glass-panel fade-in" style="margin-top:2rem; padding:4rem 2rem; max-width:800px; margin:2rem auto;">
+  <h1 class="text-center" style="font-family:'Playfair Display', serif; margin-bottom:2rem;">ബന്ധപ്പെടുക (Contact Us)</h1>
+  <form action="/contact" method="POST" class="ajax-form">
+    <div class="form-group">
+      <label>പേര് (Name)</label>
+      <input type="text" name="name" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label>ഇമെയിൽ (Email)</label>
+      <input type="email" name="email" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label>സന്ദേശം (Message)</label>
+      <textarea name="message" class="form-control" rows="5" required></textarea>
+    </div>
+    <!-- Note: Add Google reCAPTCHA v3 script and token field here in production -->
+    <button type="submit" class="btn" style="width:100%;">അയക്കുക (Send Message)</button>
+  </form>
+</div>

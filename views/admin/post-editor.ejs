@@ -1,0 +1,172 @@
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+  <h2 style="font-family:'Playfair Display', serif; margin:0;"><%= title %></h2>
+  <a href="/admin/posts" class="btn btn-secondary">Back to Posts</a>
+</div>
+
+<form id="post-form" action="<%= post.id ? '/admin/posts/edit/'+post.id : '/admin/posts/new' %>" method="POST">
+  <div class="grid-layout">
+    
+    <!-- Main Content Area -->
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+      <div class="bento-card stagger-1" style="padding:1.5rem;">
+        <div class="form-group" style="margin-bottom:0;">
+          <input type="text" name="title" class="form-control" value="<%= post.title || '' %>" placeholder="Post Title (Malayalam)" style="font-size:1.5rem; font-weight:700;" required>
+        </div>
+      </div>
+
+      <div class="bento-card stagger-2" style="padding:1.5rem; display: flex; flex-direction: column;">
+        <div id="quill-editor" style="flex: 1;"><%- post.content || '' %></div>
+        <textarea id="content" name="content" style="display:none;"><%= post.content || '' %></textarea>
+        <div style="display:flex; justify-content:space-between; color:var(--text-secondary); font-size:0.85rem; margin-top:1rem;">
+          <span>Words: <span id="word-count">0</span></span>
+          <span>Est. Read Time: <span id="read-time">0</span> min</span>
+        </div>
+      </div>
+
+      <div class="bento-card stagger-3" style="padding:1.5rem;">
+        <h4 style="margin-bottom:1rem;">SEO Settings <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">(Optional)</span></h4>
+        <div class="form-group">
+          <label>SEO Title</label>
+          <input type="text" name="seo_title" class="form-control" value="<%= post.seo_title || '' %>">
+        </div>
+        <div class="form-group">
+          <label>Meta Description</label>
+          <textarea name="meta_description" class="form-control" rows="2"><%= post.meta_description || '' %></textarea>
+        </div>
+        <div class="form-group">
+          <label>Focus Keyword</label>
+          <input type="text" name="focus_keyword" class="form-control" value="<%= post.focus_keyword || '' %>">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Settings Area -->
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+      <div class="bento-card stagger-1" style="padding:1.5rem;">
+        <h4 style="margin-bottom:1rem;">Publish Settings</h4>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status" class="form-control">
+            <option value="draft" <%= post.status === 'draft' ? 'selected' : '' %>>Draft</option>
+            <option value="published" <%= post.status === 'published' ? 'selected' : '' %>>Published</option>
+            <option value="scheduled" <%= post.status === 'scheduled' ? 'selected' : '' %>>Scheduled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Schedule Publish Time</label>
+          <% 
+             let sch = '';
+             if(post.scheduled_at) {
+               const d = new Date(post.scheduled_at);
+               sch = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+             }
+          %>
+          <input type="datetime-local" name="scheduled_at" class="form-control" value="<%= sch %>">
+        </div>
+        <button type="submit" name="action" value="save" class="btn" style="width:100%; margin-bottom:1rem;">Save Post</button>
+        <% if(post.status === 'draft' || !post.id) { %>
+          <button type="submit" name="action" value="publish" class="btn btn-secondary" style="width:100%;">Publish Now</button>
+        <% } %>
+      </div>
+
+      <div class="bento-card stagger-2" style="padding:1.5rem;">
+        <h4 style="margin-bottom:1rem;">Categories & Options</h4>
+        <div class="form-group">
+          <label>Categories</label>
+          <select name="categories" class="form-control" multiple style="height:150px;">
+            <% categories.filter(c => !c.parent_id).forEach(parent => { %>
+              <option value="<%= parent.id %>" <%= postCategories.includes(parent.id) ? 'selected' : '' %> style="font-weight:bold;"><%= parent.name %></option>
+              <% categories.filter(c => c.parent_id === parent.id).forEach(sub => { %>
+                <option value="<%= sub.id %>" <%= postCategories.includes(sub.id) ? 'selected' : '' %>>&nbsp;&nbsp;&mdash; <%= sub.name %></option>
+              <% }) %>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Custom Slug (Optional)</label>
+          <input type="text" name="slug" class="form-control" value="<%= post.slug || '' %>" placeholder="Leave empty to auto-generate">
+        </div>
+        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+          <input type="checkbox" id="is_featured" name="is_featured" <%= post.is_featured ? 'checked' : '' %>>
+          <label for="is_featured" style="margin:0; cursor:pointer;">Featured Post</label>
+        </div>
+        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0;">
+          <input type="checkbox" id="allow_comments" name="allow_comments" <%= (post.allow_comments !== false) ? 'checked' : '' %>>
+          <label for="allow_comments" style="margin:0; cursor:pointer;">Allow Comments</label>
+        </div>
+      </div>
+
+      <div class="bento-card stagger-3" style="padding:1.5rem;">
+        <h4 style="margin-bottom:1rem;">Featured Image</h4>
+        <div class="form-group" style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:0;">
+          <input type="text" name="featured_image" id="featured_image" class="form-control" value="<%= post.featured_image || '' %>" placeholder="Image URL">
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <label class="btn btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem; margin:0; cursor:pointer; border-radius:8px;">
+              <i class="fas fa-upload" style="color:var(--admin-primary);"></i> Upload Image File
+              <input type="file" id="file_featured_image" style="display:none;" accept="image/*">
+            </label>
+            <span id="upload_status" style="font-size:0.8rem; color:var(--admin-text-light);"></span>
+          </div>
+        </div>
+        <div id="image_preview_container">
+          <% if(post.featured_image) { %>
+            <img src="<%= post.featured_image %>" id="img_preview" alt="Preview" style="width:100%; border-radius:8px; margin-top:1rem; border:1px solid var(--admin-border); object-fit:cover; max-height:200px;">
+          <% } else { %>
+            <img id="img_preview" alt="Preview" style="width:100%; border-radius:8px; margin-top:1rem; display:none; border:1px solid var(--admin-border); object-fit:cover; max-height:200px;">
+          <% } %>
+        </div>
+        <p style="font-size:0.8rem; color:var(--admin-text-light); margin-top:1rem; margin-bottom:0;">Or enter a custom URL above.</p>
+      </div>
+
+      <div class="bento-card stagger-3" style="padding:1.5rem;">
+        <h4 style="margin-bottom:1rem;">Excerpt</h4>
+        <div class="form-group" style="margin-bottom:0;">
+          <textarea name="excerpt" class="form-control" rows="4" placeholder="Brief summary (max 160 chars)"><%= post.excerpt || '' %></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('file_featured_image');
+  const textInput = document.getElementById('featured_image');
+  const previewImg = document.getElementById('img_preview');
+  const statusSpan = document.getElementById('upload_status');
+
+  if (fileInput) {
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('/admin/media/upload', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          textInput.value = data.url;
+          previewImg.src = data.url;
+          previewImg.style.display = 'block';
+          statusSpan.innerHTML = '<span style="color:var(--admin-success); font-weight:600;"><i class="fas fa-check"></i> Uploaded!</span>';
+        } else {
+          statusSpan.innerHTML = `<span style="color:var(--admin-danger);">Error: ${data.error || 'Upload failed'}</span>`;
+        }
+      } catch (err) {
+        console.error(err);
+        statusSpan.innerHTML = '<span style="color:var(--admin-danger);">Upload failed.</span>';
+      }
+    });
+  }
+});
+</script>
